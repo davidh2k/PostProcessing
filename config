@@ -1,0 +1,74 @@
+#!/bin/sh
+#
+# @license http://www.gnu.org/licenses/gpl.html GPL Version 3
+# @author David Hönel <davidh1990@gmx.de>
+# @copyright Copyright (c) 2015 David Hönel
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+########################################
+# PostProcessing Scripts Configuration #
+########################################
+
+### General Settings ###
+# TV Shows Folder
+destinationPathTV=""
+downloadPathTV=""
+
+# Movies Folder
+destinationPathMovies=""
+downloadPathMovies=""
+
+# Host for Kodi Library Update
+kodiHost=""
+
+#
+### Remote Sync ###
+#
+
+## TV Shows ##
+localSyncPathTV="/mnt/synctv" # Don't change me
+
+# Fill in Path to enable Remote Sync for TV Shows
+remoteSyncPathTV=""
+
+# Set Timeframe for Remote Path Sync TV (Default: -14 Days)
+remoteSyncAgeTV="-14"
+
+# Use exclude List for TV Shows (Default: false)
+useExcludeListTV="false"
+
+## Movies ##
+localSyncPathMovies="/mnt/syncmovies"
+
+# Fill in Enable Remote Sync for Movies
+remoteSyncPathMovies=""
+
+# Set Timeframe for Remote Path Sync Movies (Default: not set)
+remoteSyncAgeMovies=""
+
+# Use exclude List for Movies (Default: false)
+useExcludeListMovies="false"
+
+# DON'T CHANGE ANY VARIABLES HERE! #
+filesForRemoteSync="/tmp/remotesyncfiles"
+excludeListTV="/etc/default/postprocessingexcludelistTV"
+exludeListMovies="/etc/default/postprocessingexcludelistMovies"
+searchVar1="$2" ## CHANGE LATER
+searchVar2="$3" ## CHANGE LATER
+searchVar3="S4" ## OLD ageSeason
+
+
+
+
