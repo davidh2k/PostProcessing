@@ -1,0 +1,135 @@
+#!/bin/sh
+#
+# @license http://www.gnu.org/licenses/gpl.html GPL Version 3
+# @author David Hönel <davidh1990@gmx.de>
+# @copyright Copyright (c) 2015 David Hönel
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+# Include Configuration File
+CONFIG_FILE="config.sh"
+if [ -f ${CONFIG_FILE}; then
+. ${CONFIG_FILE}
+else
+	echo "Aborted, no configuration file found!"
+	exit 1
+fi
+
+# Check if Local Mount Path for TV Shows exists
+checkLocalMountPathTV () {
+	if [ ! -d ${localSyncPathTV} ]; then
+		echo "Local Mount Path for TV Shows does not exist. Trying to create..."
+		mkdir -p ${localSyncPathTV}
+			if [ $? -eq 0 ]; then
+				echo "Local Mount Path for TV Shows created successfully."
+			else
+				echo "Could not create Local Mount Path for TV Shows. Aborting..."
+				exit 1
+			fi
+	fi
+}
+
+# Check if Local Mount Path for Movies exists
+checkLocalMountPathMovies () {
+	if [ ! -d ${localSyncPathMovies} ]; then
+		echo "Local Mount Path for Movies does not exist. Trying to create..."
+		mkdir -p ${localSyncPathMovies}
+			if [ $? -eq 0 ]; then
+				echo "Local Mount Path for Movies created successfully."
+			else
+				echo "Could not create Local Mount Path for Movies. Aborting..."
+				exit 1
+			fi
+	fi
+}
+
+mountRemoteSyncPathTV () {
+	echo "Checking if ${localSyncPathTV} is already mounted."
+	if [ `stat -fc%t:%T "${localSyncPathTV}"` != `stat -fc%t:%T "${localSyncPathTV}/.."` ]; then
+		echo "${localSyncPathTV} is already mounted."
+	else
+		echo "${localSyncPathTV} is not mounted."
+		echo "Mounting Directory now...."
+		mount ${remoteSyncPathTV} ${localSyncPathTV}
+		if [ $? -eq 0 ]; then
+			echo "${localSyncPathTV} mounted successfully."
+		else
+			echo "${localSyncPathTV} could not be mounted! Aborting..."
+			exit 1
+		fi
+	fi
+}
+
+mountRemoteSyncPathMovies () {
+	echo "Checking if ${localSyncPathMovies} is already mounted."
+	if [ `stat -fc%t:%T "${localSyncPathMovies}"` != `stat -fc%t:%T "${localSyncPathMovies}/.."` ]; then
+		echo "${localSyncPathMovies} is already mounted."
+	else
+		echo "${localSyncPathMovies} is not mounted."
+		echo "Mounting Directory now...."
+		mount ${remoteSyncPathMovies} ${localSyncPathMovies}
+		if [ $? -eq 0 ]; then
+			echo "${localSyncPathMovies} mounted successfully."
+		else
+			echo "${localSyncPathMovies} could not be mounted! Aborting..."
+			exit 1
+		fi
+	fi
+}
+	
+umountRemoteSyncPathTV () {
+	umount ${localSyncPathTV}
+	if [ $? -eq 0 ]; then
+			echo "${localSyncPathTV} unmounted successfully."
+		else
+			echo "${localSyncPathTV} could not be unmounted!"
+	fi
+}
+
+umountRemoteSyncPathMovies () {
+	umount ${localSyncPathMovies}
+	if [ $? -eq 0 ]; then
+			echo "${localSyncPathMovies} unmounted successfully."
+		else
+			echo "${localSyncPathMovies} could not be unmounted!"
+	fi
+}
+
+collectFilesTV () {
+	cd ${downloadPathTV}
+	if [ $? -eq 1 ]; then
+		echo "Error, could not change directory to $"
+		exit 1
+	else
+		if [ ${useExcludeListTV} = true ]
+			find . -type f ${remoteSyncAgeTV} | sed -f ${excludeListTV} > ${filesForRemoteSync}
+		else
+			find . -type f ${remoteSyncAgeTV} > ${filesForRemoteSync}
+		fi
+	fi
+}
+
+collectFilesTV () {
+	cd ${downloadPathMovies}
+	if [ $? -eq 1 ]; then
+		echo "Error, could not change directory to $"
+		exit 1
+	else
+		if [ ${useExcludeListMovies} = true ]
+			find . -type f ${remoteSyncAgeMovies} | sed -f ${excludeListMovies} > ${filesForRemoteSync}
+		else
+			find . -type f ${remoteSyncAgeMovies} > ${filesForRemoteSync}
+		fi
+	fi
+}
