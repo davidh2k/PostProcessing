@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# 0.2
+# Merged TV and Movie functions into single generic functions
+# added collect and sync functions
+# started to implement postprocessing functions
+
+# 0.1.1
+# Fixed Typo in function name
+
 # 0.1 Initial Release
 # Created PostProcessing Configuration File
 # Added Variables for TV/Movies Folder, download paths, local and remote Sync Paths, remote Sync age, remotesyncfiles, searchVars for season remote sync and excludelist, kodiHost, use exlude list
