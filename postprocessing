@@ -26,110 +26,209 @@ else
 	exit 1
 fi
 
-# Check if Local Mount Path for TV Shows exists
-checkLocalMountPathTV () {
-	if [ ! -d ${localSyncPathTV} ]; then
-		echo "Local Mount Path for TV Shows does not exist. Trying to create..."
-		mkdir -p ${localSyncPathTV}
-			if [ $? -eq 0 ]; then
-				echo "Local Mount Path for TV Shows created successfully."
-			else
-				echo "Could not create Local Mount Path for TV Shows. Aborting..."
-				exit 1
-			fi
-	fi
-}
-
-# Check if Local Mount Path for Movies exists
-checkLocalMountPathMovies () {
-	if [ ! -d ${localSyncPathMovies} ]; then
-		echo "Local Mount Path for Movies does not exist. Trying to create..."
-		mkdir -p ${localSyncPathMovies}
-			if [ $? -eq 0 ]; then
-				echo "Local Mount Path for Movies created successfully."
-			else
-				echo "Could not create Local Mount Path for Movies. Aborting..."
-				exit 1
-			fi
-	fi
-}
-
-mountRemoteSyncPathTV () {
-	echo "Checking if ${localSyncPathTV} is already mounted."
-	if [ `stat -fc%t:%T "${localSyncPathTV}"` != `stat -fc%t:%T "${localSyncPathTV}/.."` ]; then
-		echo "${localSyncPathTV} is already mounted."
-	else
-		echo "${localSyncPathTV} is not mounted."
-		echo "Mounting Directory now...."
-		mount ${remoteSyncPathTV} ${localSyncPathTV}
-		if [ $? -eq 0 ]; then
-			echo "${localSyncPathTV} mounted successfully."
-		else
-			echo "${localSyncPathTV} could not be mounted! Aborting..."
-			exit 1
-		fi
-	fi
-}
-
-mountRemoteSyncPathMovies () {
-	echo "Checking if ${localSyncPathMovies} is already mounted."
-	if [ `stat -fc%t:%T "${localSyncPathMovies}"` != `stat -fc%t:%T "${localSyncPathMovies}/.."` ]; then
-		echo "${localSyncPathMovies} is already mounted."
-	else
-		echo "${localSyncPathMovies} is not mounted."
-		echo "Mounting Directory now...."
-		mount ${remoteSyncPathMovies} ${localSyncPathMovies}
-		if [ $? -eq 0 ]; then
-			echo "${localSyncPathMovies} mounted successfully."
-		else
-			echo "${localSyncPathMovies} could not be mounted! Aborting..."
-			exit 1
-		fi
-	fi
-}
-	
-umountRemoteSyncPathTV () {
-	umount ${localSyncPathTV}
-	if [ $? -eq 0 ]; then
-			echo "${localSyncPathTV} unmounted successfully."
-		else
-			echo "${localSyncPathTV} could not be unmounted!"
-	fi
-}
-
-umountRemoteSyncPathMovies () {
-	umount ${localSyncPathMovies}
-	if [ $? -eq 0 ]; then
-			echo "${localSyncPathMovies} unmounted successfully."
-		else
-			echo "${localSyncPathMovies} could not be unmounted!"
-	fi
-}
-
-collectFilesTV () {
+postProcessTV () { ## Not yet finished...
 	cd ${downloadPathTV}
-	if [ $? -eq 1 ]; then
-		echo "Error, could not change directory to $"
-		exit 1
+}
+
+postProcessMovies () { ## Not yet finished...
+	cd ${downloadPathMovies}
+	if [ ${useStereoFilter} = true ];  then
+		cat /dev/null > ${stereoFilterMatchedFiles}
+
+		for f in *
+		do
+			ls "${f}" | grep mkv | mediainfo -f "${f}" | grep "2 channels" && echo "${f}" >> "${stereoFilterMatchedFiles}"
+		done
+
+		while read p; do
+			mv ${p} ${stereoFilterTempFolder}
+		done
+
+		if [ ls -A ${stereoFilterTempFolder} ]; then
+			filebot -rename "${TempFolder}" --db themoviedb --format "${TrashFolder}/${FilmOrdner}/${FilmDatei}" --lang de -r -non-strict --conflict auto
+
+			# not y et finished...
+
+
+			if [ ${enableRemoteSyncInPostProcessingMovies} ]; then
+				# add logic...
+			fi
+}
+
+checkLocalMountPath () {
+	if [ ! -d ${1} ]; then
+		echo "Local Mount Path ${1} does not exist. Trying to create..."
+		mkdir -p ${1}
+			if [ $? -eq 0 ]; then
+				echo "Local Mount Path ${1} created successfully."
+			else
+				echo "Could not create Local Mount Path ${1}. Aborting..."
+				exit 1
+			fi
+	fi
+}
+
+mountRemoteSyncPath () {
+	echo "Checking if ${1} is already mounted."
+	if [ `stat -fc%t:%T "${1}"` != `stat -fc%t:%T "${1}/.."` ]; then
+		echo "${1} is already mounted."
 	else
-		if [ ${useExcludeListTV} = true ]
-			find . -type f ${remoteSyncAgeTV} | sed -f ${excludeListTV} > ${filesForRemoteSync}
+		echo "${1} is not mounted."
+		echo "Mounting Directory now...."
+		mount ${remoteSyncPathTV} ${1}
+		if [ $? -eq 0 ]; then
+			echo "${1} mounted successfully."
 		else
-			find . -type f ${remoteSyncAgeTV} > ${filesForRemoteSync}
+			echo "${1} could not be mounted! Aborting..."
+			exit 1
 		fi
 	fi
 }
 
-collectFilesTV () {
-	cd ${downloadPathMovies}
-	if [ $? -eq 1 ]; then
-		echo "Error, could not change directory to $"
-		exit 1
-	else
-		if [ ${useExcludeListMovies} = true ]
-			find . -type f ${remoteSyncAgeMovies} | sed -f ${excludeListMovies} > ${filesForRemoteSync}
+umountRemoteSyncPath () {
+	umount ${1}
+	if [ $? -eq 0 ]; then
+			echo "${1} unmounted successfully."
 		else
-			find . -type f ${remoteSyncAgeMovies} > ${filesForRemoteSync}
+			echo "${1} could not be unmounted!"
+	fi	
+}
+
+collectFiles () {
+	if [ $1 = TV ]; then 
+		downloadPath = ${downloadPathTV}
+		remoteSyncAge = ${remoteSyncAgeTV}
+		excludeList = ${excludeListTV}
+		useExcludeList = ${useExcludeListTV}
+	elif [ $1 = Movies ]; then
+		downloadPath = ${downloadPathMovies}
+		remoteSyncAge = ${remoteSyncAgeMovies}
+		excludeList = ${excludeListMovies}
+		useExcludeList = ${useExcludeListMovies}
+	else
+		echo "Called with unknown argument. Aborting..."
+		exit 1
+	fi
+
+	cd ${downloadPath}
+
+	if [ $? -eq 1 ]; then
+		echo "Error, could not change directory to ${downloadPath}"
+		exit 1
+	elif [ ${useExcludeList} = true ]; then
+		find . -type f ${remoteSyncAge} | sed -f ${excludeList} > ${filesForRemoteSync}
+	else
+		find . -type f ${remoteSyncAge} > ${filesForRemoteSync}
+	fi
+}
+
+collectFilesSeason () {
+	echo "Writing Season with correct path to ${filesForRemoteSync}"
+	
+	cd ${destinationPathTV}
+	
+	if [ $? -eq 1 ]; then
+		echo "Error, could not change directory to ${destinationPathTV}"
+		exit 1
+	fi
+
+	if [ -n ${3} ]
+		find . -type f -name "${1}*${2}*" -mtime "${3}" | tee ${filesForRemoteSync}
+	else
+		find . -type f -name "${1}*${2}*" | tee ${filesForRemoteSync}
+	fi
+}
+
+syncFiles () {
+
+	destinationPath = ${1}
+	
+	if [ ${2} = dryrun ]; then
+		echo "Syncing files now...(dryrun)"
+		rsync -Ranvh --files-from=${filesForRemoteSync} . ${destinationPath}
+	else
+		echo "Syncing files now..."
+		rsync -Ravh --files-from=${filesForRemoteSync} . ${destinationPath}
+		if [ $? -eq 1 ]; then
+			echo "Files synced successfully."
+		else
+			echo "Filetransfer ended with errors!"
 		fi
 	fi
 }
+
+syncFilesSeason () {
+	echo "Syncing Season now..."
+	rsync -Ravh --files-from=${filesForRemoteSync} . ${destinationPathTV}
+	if [ $? -eq 1 ]; then
+		echo "Files synced successfully."
+	else
+		echo "Filetransfer ended with errors!"
+	fi
+}
+
+updateXBMCLib () {
+	if [ ${useKodiLibraryUpdate} = true ]; then
+		xbmc-send --action="UpdateLibrary(video)" --host=${kodiHost}
+		echo "Updating Kodi Library..."
+	elif [ ${useKodiLibraryUpdate} = clean ]; then
+		echo "Cleaning Kodi Library..."
+		xbmc-send --action="CleanLibrary(video)" --host=${kodiHost}
+		echo "Waiting ${kodiCleanWaitTime} seconds before Updating Kodi Library."
+		sleep ${kodiCleanWaitTime}
+		xbmc-send --action="UpdateLibrary(video)" --host=${kodiHost}
+		echo "Updating Kodi Library..."
+	else
+		:
+	fi
+}
+
+case $1 in
+	SyncTV)
+		if [ $2 = dryrun ]; then
+			collectFiles TV dryrun
+		else
+			checkLocalMountPath ${localSyncPathTV}
+			mountRemoteSyncPath ${remoteSyncPathTV}
+			collectFiles TV
+			syncFiles TV
+			updateXBMCLib
+			umountRemoteSyncPath ${localSyncPathTV}
+		fi
+	;;
+	
+	SyncMovies)
+		if [ $2 = dryrun ]; then
+			collectFiles Movies dryrun
+		else
+			checkLocalMountPath ${localSyncPathMovies}
+			mountRemoteSyncPath ${remoteSyncPathMovies}
+			collectFiles Movies
+			syncFiles Movies
+			updateXBMCLib
+			umountRemoteSyncPath ${localSyncPathMovies}
+		fi
+	;;
+
+	SyncSeason)
+		if [ ${4} = dryrun ] || [ ${5} = dryrun ] ; then
+			collectFilesSeason
+		else
+		checkLocalMountPath ${localSyncPathTV}
+		mountRemoteSyncPath ${remoteSyncPathTV}
+		collectFilesSeason ${2} ${3} ${4}
+		fi
+	;;	
+
+	postProcessTV
+	# Planned: Mount/Unmount
+	# UpdateLib/CleanLib
+
+	 *)
+		echo "PostProcessing called with unknown argument."
+		readme
+		exit 1
+	;;
+esac
+
+exit 0
