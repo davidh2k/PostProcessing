@@ -29,13 +29,21 @@ downloadPathTV=""
 # Movies Folder
 destinationPathMovies=""
 downloadPathMovies=""
+# Enable Filter for Stereo Audio
+useStereoFilter=""
+stereoFilterMatchedFiles="/tmp/stereofiltermatchedfiles"
+stereoFilterTempFolder="/opt/tmp/"
 
 # Host for Kodi Library Update
+# Enable Kodi Library Update (Default: false, allowed: true, clean)
+useKodiLibraryUpdate="false"
 kodiHost=""
+kodiCleanWaitTime="15"
 
 #
 ### Remote Sync ###
 #
+enableRemoteSyncInPostProcessing=""
 
 ## TV Shows ##
 localSyncPathTV="/mnt/synctv" # Don't change me
