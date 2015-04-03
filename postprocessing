@@ -26,12 +26,19 @@ else
 	exit 1
 fi
 
-postProcessTV () { ## Not yet finished...
-	cd ${downloadPathTV}
+postProcessTV () { ## Not yet finished... or maybe now it is xD
+	cd ${1}
+
+	filebot -rename "${1}" ${filebotTVDB} --format "${2}/{filebotTVFolder}/${filebotTVFile}" ${filebotTVLanguage} ${filebotTVRecursive} ${filebotTVNonstrict}
+
+	if [ ${enableFilebotCleaner} = true ]; then
+		filebot -script fn:cleaner "${1}"
+	fi
 }
 
-postProcessMovies () { ## Guess its finished now.
+postProcessMovies () { ## Guess its finished now. # Add additional checks on the stereo Filter so that the mv command is not executed if there where no matched files!
 	cd ${1}
+
 	if [ ${useStereoFilter} = true ];  then
 		cat /dev/null > ${stereoFilterMatchedFiles}
 
@@ -45,7 +52,7 @@ postProcessMovies () { ## Guess its finished now.
 		done < "${stereoFilterMatchedFiles}"
 
 		if [ ls -A ${stereoFilterTempFolder} ]; then
-			filebot -rename "${stereoFilterTempFolder}" ${filebotMoviesDB} "${filebotMoviesFormatStereo}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict} ${filebotMoviesNonstrict}
+			filebot -rename "${stereoFilterTempFolder}" ${filebotMoviesDB} "${filebotMoviesFormatStereo}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict}
 
 			if [ ${enableFilebotCleaner} = true ]; then
 				filebot -script fn:cleaner "${stereoFilterTempFolder}"
@@ -55,7 +62,7 @@ postProcessMovies () { ## Guess its finished now.
 		fi
 	fi
 
-	filebot -rename "${1}" ${filebotMoviesDB} --format "${2}/${filebotMoviesFolder}/${filebotMoviesFile}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict} ${filebotMoviesNonstrict}
+	filebot -rename "${1}" ${filebotMoviesDB} --format "${2}/${filebotMoviesFolder}/${filebotMoviesFile}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict}
 
 	if [ ${enableFilebotCleaner} = true ]; then
 		filebot -script fn:cleaner "${stereoFilterTempFolder}"
