@@ -30,8 +30,8 @@ postProcessTV () { ## Not yet finished...
 	cd ${downloadPathTV}
 }
 
-postProcessMovies () { ## Not yet finished...
-	cd ${downloadPathMovies}
+postProcessMovies () { ## Guess its finished now.
+	cd ${1}
 	if [ ${useStereoFilter} = true ];  then
 		cat /dev/null > ${stereoFilterMatchedFiles}
 
@@ -55,19 +55,14 @@ postProcessMovies () { ## Not yet finished...
 		fi
 	fi
 
-	filebot -rename "${downloadPathMovies}" ${filebotMoviesDB} "${filebotMoviesFormat}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict} ${filebotMoviesNonstrict}
+	filebot -rename "${1}" ${filebotMoviesDB} --format "${2}/${filebotMoviesFolder}/${filebotMoviesFile}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict} ${filebotMoviesNonstrict}
 
 	if [ ${enableFilebotCleaner} = true ]; then
 		filebot -script fn:cleaner "${stereoFilterTempFolder}"
 	fi
 
-	if [ ${enableRemoteSyncInPostProcessingMovies} = true ]; then ### REWORK TO CASE INSTEAD!!!
-		checkLocalMountPath ${localSyncPathMovies}
-		mountRemoteSyncPath ${remoteSyncPathMovies}
-		collectFiles Movies
-		syncFiles Movies
-		updateXBMCLib
-		umountRemoteSyncPath ${localSyncPathMovies}
+	if [ ${enableRemoteSyncInPostProcessingMovies} = true ]; then
+		postprocessing SyncMovies
 	fi
 }
 
@@ -237,10 +232,19 @@ case $1 in
 		fi
 	;;	
 
-	postProcessTV
-	# Planned: Mount/Unmount
-	# UpdateLib/CleanLib
+	postProcessTVNative)
+		postProcessTV "${downloadPathTVNative}" "${destinationPathTVNative}"
+	;;
 
+	postProcessTVEN)
+		postProcessTV "${downloadPathTVEN}" "${destinationPathTVEN}"
+
+	postProcessMoviesNative)
+		postProcessMovies "${downloadPathMoviesNative}" "${downloadPathMoviesNative}"
+	;;
+
+	postProcessMoviesEN)
+		postProcessMovies "${downloadPathMoviesEN}" "${downloadPathMoviesEN}"
 	 *)
 		echo "PostProcessing called with unknown argument."
 		readme
