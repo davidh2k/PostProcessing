@@ -22,33 +22,49 @@
 ########################################
 
 ### General Settings ###
+# Download Path TV Shows (Where are your TV Shows stored after downloading?)
+downloadPathTVNative="/opt/SAB1/Downloads/complete/tv" # Your native Language (Full Path!)
+downloadPathTVEN="/opt/SAB2/Downloads/complete/tv" # English, if used MUST be separate Folder from your native Language (Full Path!)
 # TV Shows Folder
-destinationPathTV=""
-# Syntax for Filebot (Movie Folder)
-destinationPathTVFolder=""
-# Syntax for Filebot (Movie File)
-destinationPathTVFile=""
-# Download Path (Where are your Movies stored after downloading?)
-downloadPathTV=""
+destinationPathTVNative="Deutsch" # Your native Language (Only fill in the Language, leave empty if you don't want to use it)
+destinationPathTVEN="English" # English, can be seperate Folder from your native Language if you wish, leave empty if you don't need it)
+## Filebot Syntax Settings ## Those Settings are used to properly rename the files
+# TV Show Folder
+filebotTVFolder="{n.replaceAll(/[!?.]+\$/).replaceAll(/[\`´‘’ʻ]/, \"'\").replace(':',' -')}"
+# TV Show File
+filebotTVFile="{t.replaceAll(/[!?.]+\$/).replaceAll(/[\`´‘’ʻ]/, \"'\").replace(':',' -')}"
+# TV Show Database
+filebotTVDB="--db thetvdb"
+# TV Show language # Which Language should be used to rename the TV Show Episode?
+filebotTVLanguage="--lang en"
+# TV Show - Go recursive through the Download Folder. Empty the variable if you don't want to use it.
+filebotTVRecursive="-r"
+# TV Show - Use non-strict matching
+filebotTVNonstrict=""
 
+
+
+# Download Path (Where are your Movies stored after downloading?)
+downloadPathMoviesNative=""
+downloadPathMoviesEN=""
 # Movies Folder
-destinationPathMovies=""
-# Syntax for Filebot (TV Show Folder) 
-filebotMoviesFolder=""
-# Syntax for Filebot (Episode File)
-filebotMoviesFile=""
-# Filebot Movie Database
+destinationPathMoviesNative=""
+destinationPathMoviesEN=""
+## Filebot Syntax Settings ## Those Settings are used to properly rename the files
+# Movie Folder 
+filebotMoviesFolder="{n.replaceAll(/[!?.]+\$/).replaceAll(/[\`´‘’ʻ]/, \"'\").replace(':',' -')} ({y}) {vf}"
+# Movie File
+filebotMoviesFile="{n.replaceAll(/[!?.]+\$/).replaceAll(/[\`´‘’ʻ]/, \"'\").replace(':',' -')} ({y}) {vf}{' CD'+pi}"
+# Movies Database
 filebotMoviesDB="--db themoviedb"
-# Filebot Language
+# Movies Language # Which Language should be used to rename the Movie? 
 filebotMoviesLanguage="--lang de"
-# Use Filebot recursive, empty variable if you don't want to use it
+# Movies - Go recursive through the Download Folder. Empty the variable if you don't want to use it
 filebotMoviesRecursive="-r"
-# Use Filebot non-strict matching
+# Movies Use Filebot non-strict matching
 filebotMoviesNonstrict="-non-strict"
 # Filebot Movie Format
 filebotMoviesFormat="--format ${destinationPathMovies}/${filebotMoviesFolder}/${filebotMoviesFile}"
-# Download Path (Where are your TV Show Episodes stored after downloading?)
-downloadPathMovies=""
 
 # Enable Filter for Stereo Audio
 useStereoFilter=""
