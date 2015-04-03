@@ -24,15 +24,39 @@
 ### General Settings ###
 # TV Shows Folder
 destinationPathTV=""
+# Syntax for Filebot (Movie Folder)
+destinationPathTVFolder=""
+# Syntax for Filebot (Movie File)
+destinationPathTVFile=""
+# Download Path (Where are your Movies stored after downloading?)
 downloadPathTV=""
 
 # Movies Folder
 destinationPathMovies=""
+# Syntax for Filebot (TV Show Folder) 
+filebotMoviesFolder=""
+# Syntax for Filebot (Episode File)
+filebotMoviesFile=""
+# Filebot Movie Database
+filebotMoviesDB="--db themoviedb"
+# Filebot Language
+filebotMoviesLanguage="--lang de"
+# Use Filebot recursive, empty variable if you don't want to use it
+filebotMoviesRecursive="-r"
+# Use Filebot non-strict matching
+filebotMoviesNonstrict="-non-strict"
+# Filebot Movie Format
+filebotMoviesFormat="--format ${destinationPathMovies}/${filebotMoviesFolder}/${filebotMoviesFile}"
+# Download Path (Where are your TV Show Episodes stored after downloading?)
 downloadPathMovies=""
+
 # Enable Filter for Stereo Audio
 useStereoFilter=""
 stereoFilterMatchedFiles="/tmp/stereofiltermatchedfiles"
-stereoFilterTempFolder="/opt/tmp/"
+stereoFilterTempPath="/opt/tmp/"
+# Where do you want to move the Movies with Stereo Audio Tracks to?
+stereoFilterDestinationPath=""
+filebotMoviesFormatStereo="--format ${stereoFilterDestinationPath}/${filebotMoviesFolder}/${filebotMoviesFile}"
 
 # Host for Kodi Library Update
 # Enable Kodi Library Update (Default: false, allowed: true, clean)

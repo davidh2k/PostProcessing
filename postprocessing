@@ -42,17 +42,33 @@ postProcessMovies () { ## Not yet finished...
 
 		while read p; do
 			mv ${p} ${stereoFilterTempFolder}
-		done
+		done < "${stereoFilterMatchedFiles}"
 
 		if [ ls -A ${stereoFilterTempFolder} ]; then
-			filebot -rename "${TempFolder}" --db themoviedb --format "${TrashFolder}/${FilmOrdner}/${FilmDatei}" --lang de -r -non-strict --conflict auto
+			filebot -rename "${stereoFilterTempFolder}" ${filebotMoviesDB} "${filebotMoviesFormatStereo}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict} ${filebotMoviesNonstrict}
 
-			# not y et finished...
-
-
-			if [ ${enableRemoteSyncInPostProcessingMovies} ]; then
-				# add logic...
+			if [ ${enableFilebotCleaner} = true ]; then
+				filebot -script fn:cleaner "${stereoFilterTempFolder}"
 			fi
+		else
+			echo "No File in "${stereoFilterTempFolder}", nothing to do here."
+		fi
+	fi
+
+	filebot -rename "${downloadPathMovies}" ${filebotMoviesDB} "${filebotMoviesFormat}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict} ${filebotMoviesNonstrict}
+
+	if [ ${enableFilebotCleaner} = true ]; then
+		filebot -script fn:cleaner "${stereoFilterTempFolder}"
+	fi
+
+	if [ ${enableRemoteSyncInPostProcessingMovies} = true ]; then ### REWORK TO CASE INSTEAD!!!
+		checkLocalMountPath ${localSyncPathMovies}
+		mountRemoteSyncPath ${remoteSyncPathMovies}
+		collectFiles Movies
+		syncFiles Movies
+		updateXBMCLib
+		umountRemoteSyncPath ${localSyncPathMovies}
+	fi
 }
 
 checkLocalMountPath () {
@@ -70,16 +86,17 @@ checkLocalMountPath () {
 
 mountRemoteSyncPath () {
 	echo "Checking if ${1} is already mounted."
-	if [ `stat -fc%t:%T "${1}"` != `stat -fc%t:%T "${1}/.."` ]; then
+	if [ `stat -fc%t:%T "${1}"` != `stat -fc%t:%T "${1}/.."` ] && [ -e ${1}/${2}.check ]; then
 		echo "${1} is already mounted."
 	else
 		echo "${1} is not mounted."
 		echo "Mounting Directory now...."
-		mount ${remoteSyncPathTV} ${1}
-		if [ $? -eq 0 ]; then
+		mount ${1}
+		if [ $? -eq 0 ] && [ -e ${1}/${2}.check ]; then
 			echo "${1} mounted successfully."
 		else
 			echo "${1} could not be mounted! Aborting..."
+			echo "Maybe ${2}.check in ${1} is missing?"
 			exit 1
 		fi
 	fi
@@ -189,7 +206,7 @@ case $1 in
 			collectFiles TV dryrun
 		else
 			checkLocalMountPath ${localSyncPathTV}
-			mountRemoteSyncPath ${remoteSyncPathTV}
+			mountRemoteSyncPath ${remoteSyncPathTV} TV
 			collectFiles TV
 			syncFiles TV
 			updateXBMCLib
@@ -202,7 +219,7 @@ case $1 in
 			collectFiles Movies dryrun
 		else
 			checkLocalMountPath ${localSyncPathMovies}
-			mountRemoteSyncPath ${remoteSyncPathMovies}
+			mountRemoteSyncPath ${remoteSyncPathMovies} Movies
 			collectFiles Movies
 			syncFiles Movies
 			updateXBMCLib
