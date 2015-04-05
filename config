@@ -24,10 +24,10 @@
 ### General Settings ###
 # Download Path TV Shows (Where are your TV Shows stored after downloading?)
 downloadPathTVNative="/opt/SAB1/Downloads/complete/tv" # Your native Language (Full Path!)
-downloadPathTVEN="/opt/SAB2/Downloads/complete/tv" # English, if used MUST be separate Folder from your native Language (Full Path!)
+downloadPathTVSecond="/opt/SAB2/Downloads/complete/tv" # Second language, if used MUST be separate Folder from your native Language (Full Path!)
 # TV Shows Folder
 destinationPathTVNative="Deutsch" # Your native Language (Only fill in the Language, leave empty if you don't want to use it)
-destinationPathTVEN="English" # English, can be seperate Folder from your native Language if you wish, leave empty if you don't need it)
+destinationPathTVSecond="English" # Your second Language, can be seperate Folder from your native Language if you wish, leave empty if you don't need it)
 ## Filebot Syntax Settings ## Those Settings are used to properly rename the files
 # TV Show Folder
 filebotTVFolder="{n.replaceAll(/[!?.]+\$/).replaceAll(/[\`´‘’ʻ]/, \"'\").replace(':',' -')}"
@@ -45,11 +45,11 @@ filebotTVNonstrict=""
 
 
 # Download Path (Where are your Movies stored after downloading?)
-downloadPathMoviesNative=""
-downloadPathMoviesEN=""
+downloadPathMoviesNative="" # Your native Language (Full Path!)
+downloadPathMoviesSecond="" # Second language, if used MUST be separate Folder from your native Language (Full Path!)
 # Movies Folder
-destinationPathMoviesNative=""
-destinationPathMoviesEN=""
+destinationPathMoviesNative="" # Your native Language (Only fill in the Language, leave empty if you don't want to use it)
+destinationPathMoviesSecond="" # Your second Language, can be seperate Folder from your native Language if you wish, leave empty if you don't need it)
 ## Filebot Syntax Settings ## Those Settings are used to properly rename the files
 # Movie Folder 
 filebotMoviesFolder="{n.replaceAll(/[!?.]+\$/).replaceAll(/[\`´‘’ʻ]/, \"'\").replace(':',' -')} ({y}) {vf}"
@@ -115,7 +115,7 @@ excludeListTV="/etc/default/postprocessingexcludelistTV"
 exludeListMovies="/etc/default/postprocessingexcludelistMovies"
 searchVar1="$2" ## CHANGE LATER
 searchVar2="$3" ## CHANGE LATER
-searchVar3="S4" ## OLD ageSeason
+searchVar3="$4" ## OLD ageSeason
 
 
 

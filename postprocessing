@@ -26,17 +26,17 @@ else
 	exit 1
 fi
 
-postProcessTV () { ## Not yet finished... or maybe now it is xD
+postProcessTV () {
 	cd ${1}
 
-	filebot -rename "${1}" ${filebotTVDB} --format "${2}/{filebotTVFolder}/${filebotTVFile}" ${filebotTVLanguage} ${filebotTVRecursive} ${filebotTVNonstrict}
+	filebot -rename "${1}" ${filebotTVDB} --format "${2}/${filebotTVFolder}/${filebotTVFile}" ${filebotTVLanguage} ${filebotTVRecursive} ${filebotTVNonstrict}
 
 	if [ ${enableFilebotCleaner} = true ]; then
 		filebot -script fn:cleaner "${1}"
 	fi
 }
 
-postProcessMovies () { ## Guess its finished now. # Add additional checks on the stereo Filter so that the mv command is not executed if there where no matched files!
+postProcessMovies () {
 	cd ${1}
 
 	if [ ${useStereoFilter} = true ];  then
@@ -47,9 +47,13 @@ postProcessMovies () { ## Guess its finished now. # Add additional checks on the
 			ls "${f}" | grep mkv | mediainfo -f "${f}" | grep "2 channels" && echo "${f}" >> "${stereoFilterMatchedFiles}"
 		done
 
-		while read p; do
-			mv ${p} ${stereoFilterTempFolder}
-		done < "${stereoFilterMatchedFiles}"
+		if [ -s ${stereoFilterMatchedFiles} ]
+			while read p; do
+				mv ${p} ${stereoFilterTempFolder}
+			done < "${stereoFilterMatchedFiles}"
+		else
+			:
+		fi
 
 		if [ ls -A ${stereoFilterTempFolder} ]; then
 			filebot -rename "${stereoFilterTempFolder}" ${filebotMoviesDB} "${filebotMoviesFormatStereo}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict}
@@ -243,14 +247,14 @@ case $1 in
 		postProcessTV "${downloadPathTVNative}" "${destinationPathTVNative}"
 	;;
 
-	postProcessTVEN)
+	postProcessTVSecond)
 		postProcessTV "${downloadPathTVEN}" "${destinationPathTVEN}"
 
 	postProcessMoviesNative)
 		postProcessMovies "${downloadPathMoviesNative}" "${downloadPathMoviesNative}"
 	;;
 
-	postProcessMoviesEN)
+	postProcessMoviesSecond)
 		postProcessMovies "${downloadPathMoviesEN}" "${downloadPathMoviesEN}"
 	 *)
 		echo "PostProcessing called with unknown argument."
