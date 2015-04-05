@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 # Include Configuration File
-CONFIG_FILE="config.sh"
+CONFIG_FILE="./config"
 if [ -f ${CONFIG_FILE}; then
 . ${CONFIG_FILE}
 else
@@ -47,7 +47,7 @@ postProcessMovies () {
 			ls "${f}" | grep mkv | mediainfo -f "${f}" | grep "2 channels" && echo "${f}" >> "${stereoFilterMatchedFiles}"
 		done
 
-		if [ -s ${stereoFilterMatchedFiles} ]
+		if [ -s ${stereoFilterMatchedFiles} ]; then
 			while read p; do
 				mv ${p} ${stereoFilterTempFolder}
 			done < "${stereoFilterMatchedFiles}"
@@ -158,7 +158,7 @@ collectFilesSeason () {
 		exit 1
 	fi
 
-	if [ -n ${3} ]
+	if [ -n ${3} ]; then
 		echo "Writing Season with correct path to ${filesForRemoteSync}"
 		find . -type f -name "${1}*${2}*" -mtime "${3}" | tee ${filesForRemoteSync}
 	else
@@ -186,7 +186,7 @@ syncFiles () {
 }
 
 syncFilesSeason () {
-	if [ ${3} = dryrun ] || [ ${4} = dryrun ]
+	if [ ${3} = dryrun ] || [ ${4} = dryrun ]; then
 		echo "Syncing season now... Dryrun!"
 		rsync -Ravhn --files-from=${filesForRemoteSync} . ${destinationPathTV}
 	else
@@ -221,7 +221,7 @@ usage () {
 }
 
 helpMessage () { # Not yet finished
-
+	:
 }
 
 case $1 in
@@ -263,6 +263,7 @@ case $1 in
 
 	postProcessTVSecond)
 		postProcessTV "${downloadPathTVSecond}" "${destinationPathTVSecond}"
+	;;	
 
 	postProcessMoviesNative)
 		postProcessMovies "${downloadPathMoviesNative}" "${downloadPathMoviesNative}" "${stereoFilterDestinationPathNative}"

@@ -71,7 +71,7 @@ filebotMoviesOverride="--override auto"
 
 ## Stereo Filter (Movies only!) ##
 # Enable Filter for Stereo Audio
-useStereoFilter=""
+useStereoFilter="false" # (Default: false, allowed: true, clean)
 stereoFilterMatchedFiles="/tmp/stereofiltermatchedfiles" # Do NOT change.
 stereoFilterTempPath="/opt/tmp/" # Do NOT change.
 # Where do you want to move the Movies with Stereo Audio Tracks to?
