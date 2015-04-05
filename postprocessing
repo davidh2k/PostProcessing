@@ -181,12 +181,17 @@ syncFiles () {
 }
 
 syncFilesSeason () {
-	echo "Syncing Season now..."
-	rsync -Ravh --files-from=${filesForRemoteSync} . ${destinationPathTV}
-	if [ $? -eq 1 ]; then
-		echo "Files synced successfully."
+	if [ ${3} = dryrun ] || [ ${4} = dryrun ]
+		echo "Syncing season now... Dryrun!"
+		rsync -Ravhn --files-from=${filesForRemoteSync} . ${destinationPathTV}
 	else
-		echo "Filetransfer ended with errors!"
+		echo "Syncing Season now..."
+		rsync -Ravh --files-from=${filesForRemoteSync} . ${destinationPathTV}
+		if [ $? -eq 1 ]; then
+			echo "Files synced successfully."
+		else
+			echo "Filetransfer ended with errors!"
+		fi
 	fi
 }
 
@@ -234,13 +239,9 @@ case $1 in
 	;;
 
 	SyncSeason)
-		if [ ${4} = dryrun ] || [ ${5} = dryrun ] ; then
-			collectFilesSeason
-		else
 		checkLocalMountPath ${localSyncPathTV}
 		mountRemoteSyncPath ${remoteSyncPathTV}
-		collectFilesSeason ${2} ${3} ${4}
-		fi
+		collectFilesSeason ${2} ${3} ${4} ${5}
 	;;	
 
 	postProcessTVNative)
