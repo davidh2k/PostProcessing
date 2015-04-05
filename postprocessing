@@ -29,7 +29,7 @@ fi
 postProcessTV () {
 	cd ${1}
 
-	filebot -rename "${1}" ${filebotTVDB} --format "${2}/${filebotTVFolder}/${filebotTVFile}" ${filebotTVLanguage} ${filebotTVRecursive} ${filebotTVNonstrict}
+	filebot -rename "${1}" ${filebotTVDB} --format "${2}/${filebotTVFolder}/${filebotTVFile}" ${filebotTVLanguage} ${filebotTVRecursive} ${filebotTVNonstrict} ${filebotTVOverride}
 
 	if [ ${enableFilebotCleaner} = true ]; then
 		filebot -script fn:cleaner "${1}"
@@ -55,8 +55,8 @@ postProcessMovies () {
 			:
 		fi
 
-		if [ ls -A ${stereoFilterTempFolder} ]; then
-			filebot -rename "${stereoFilterTempFolder}" ${filebotMoviesDB} "${filebotMoviesFormatStereo}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict}
+		if [ "$(ls -A ${stereoFilterTempFolder})" ]; then
+			filebot -rename "${stereoFilterTempFolder}" ${filebotMoviesDB} --format "{3}/${filebotMoviesFolder}/${filebotMoviesFile}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict} ${filebotMoviesOverride}
 
 			if [ ${enableFilebotCleaner} = true ]; then
 				filebot -script fn:cleaner "${stereoFilterTempFolder}"
@@ -66,7 +66,7 @@ postProcessMovies () {
 		fi
 	fi
 
-	filebot -rename "${1}" ${filebotMoviesDB} --format "${2}/${filebotMoviesFolder}/${filebotMoviesFile}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict}
+	filebot -rename "${1}" ${filebotMoviesDB} --format "${2}/${filebotMoviesFolder}/${filebotMoviesFile}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict} ${filebotMoviesOverride}
 
 	if [ ${enableFilebotCleaner} = true ]; then
 		filebot -script fn:cleaner "${stereoFilterTempFolder}"
@@ -146,8 +146,11 @@ collectFiles () {
 }
 
 collectFilesSeason () {
-	echo "Writing Season with correct path to ${filesForRemoteSync}"
-	
+	if -n [ -n ${1} || -n ${2} ]; then
+		echo "Missing argument!"
+		exit 1
+	fi
+
 	cd ${destinationPathTV}
 	
 	if [ $? -eq 1 ]; then
@@ -156,8 +159,10 @@ collectFilesSeason () {
 	fi
 
 	if [ -n ${3} ]
+		echo "Writing Season with correct path to ${filesForRemoteSync}"
 		find . -type f -name "${1}*${2}*" -mtime "${3}" | tee ${filesForRemoteSync}
 	else
+		echo "Writing Season with correct path to ${filesForRemoteSync}"
 		find . -type f -name "${1}*${2}*" | tee ${filesForRemoteSync}
 	fi
 }
@@ -211,6 +216,14 @@ updateXBMCLib () {
 	fi
 }
 
+usage () {
+	echo "Usage: $0 [OPTION]... [ARGUMENTS]...\nTry \`$0 -h' or \`$0 --help' for more information."
+}
+
+helpMessage () { # Not yet finished
+
+}
+
 case $1 in
 	SyncTV)
 		if [ $2 = dryrun ]; then
@@ -249,18 +262,22 @@ case $1 in
 	;;
 
 	postProcessTVSecond)
-		postProcessTV "${downloadPathTVEN}" "${destinationPathTVEN}"
+		postProcessTV "${downloadPathTVSecond}" "${destinationPathTVSecond}"
 
 	postProcessMoviesNative)
-		postProcessMovies "${downloadPathMoviesNative}" "${downloadPathMoviesNative}"
+		postProcessMovies "${downloadPathMoviesNative}" "${downloadPathMoviesNative}" "${stereoFilterDestinationPathNative}"
 	;;
 
 	postProcessMoviesSecond)
-		postProcessMovies "${downloadPathMoviesEN}" "${downloadPathMoviesEN}"
-	 *)
-		echo "PostProcessing called with unknown argument."
-		readme
-		exit 1
+		postProcessMovies "${downloadPathMoviesSecond}" "${downloadPathMoviesSecond}" "${stereoFilterDestinationPathSecond}"
+	;;
+
+	-h|--help)
+		helpMessage
+	;;
+
+	*)
+		usage
 	;;
 esac
 

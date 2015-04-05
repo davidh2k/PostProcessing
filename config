@@ -21,7 +21,9 @@
 # PostProcessing Scripts Configuration #
 ########################################
 
-### General Settings ###
+### Post Processing Settings ###
+
+## TV Show Settings ##
 # Download Path TV Shows (Where are your TV Shows stored after downloading?)
 downloadPathTVNative="/opt/SAB1/Downloads/complete/tv" # Your native Language (Full Path!)
 downloadPathTVSecond="/opt/SAB2/Downloads/complete/tv" # Second language, if used MUST be separate Folder from your native Language (Full Path!)
@@ -41,15 +43,16 @@ filebotTVLanguage="--lang en"
 filebotTVRecursive="-r"
 # TV Show - Use non-strict matching
 filebotTVNonstrict=""
+# TV Show - Override Setting
+filebotTVOverride="--override auto"
 
-
-
+## Movies Settings ##
 # Download Path (Where are your Movies stored after downloading?)
 downloadPathMoviesNative="" # Your native Language (Full Path!)
 downloadPathMoviesSecond="" # Second language, if used MUST be separate Folder from your native Language (Full Path!)
 # Movies Folder
-destinationPathMoviesNative="" # Your native Language (Only fill in the Language, leave empty if you don't want to use it)
-destinationPathMoviesSecond="" # Your second Language, can be seperate Folder from your native Language if you wish, leave empty if you don't need it)
+destinationPathMoviesNative="" # Your native Language (Only fill in the Language, leave empty if you don't want to use it) (Full Path!)
+destinationPathMoviesSecond="" # Your second Language, can be seperate Folder from your native Language if you wish, leave empty if you don't need it) (Full Path!)
 ## Filebot Syntax Settings ## Those Settings are used to properly rename the files
 # Movie Folder 
 filebotMoviesFolder="{n.replaceAll(/[!?.]+\$/).replaceAll(/[\`´‘’ʻ]/, \"'\").replace(':',' -')} ({y}) {vf}"
@@ -61,62 +64,53 @@ filebotMoviesDB="--db themoviedb"
 filebotMoviesLanguage="--lang de"
 # Movies - Go recursive through the Download Folder. Empty the variable if you don't want to use it
 filebotMoviesRecursive="-r"
-# Movies Use Filebot non-strict matching
+# Movies - Filebot non-strict matching Setting
 filebotMoviesNonstrict="-non-strict"
-# Filebot Movie Format
-filebotMoviesFormat="--format ${destinationPathMovies}/${filebotMoviesFolder}/${filebotMoviesFile}"
+# Movies - Filebot Override Setting
+filebotMoviesOverride="--override auto"
 
+## Stereo Filter (Movies only!) ##
 # Enable Filter for Stereo Audio
 useStereoFilter=""
-stereoFilterMatchedFiles="/tmp/stereofiltermatchedfiles"
-stereoFilterTempPath="/opt/tmp/"
+stereoFilterMatchedFiles="/tmp/stereofiltermatchedfiles" # Do NOT change.
+stereoFilterTempPath="/opt/tmp/" # Do NOT change.
 # Where do you want to move the Movies with Stereo Audio Tracks to?
-stereoFilterDestinationPath=""
-filebotMoviesFormatStereo="--format ${stereoFilterDestinationPath}/${filebotMoviesFolder}/${filebotMoviesFile}"
+stereoFilterDestinationPathNative="" # Your Native Language, MUST be set if useStereoFilter is set to true. (Full Path!)
+stereoFilterDestinationPathSecond="" # Your Second Language, MUST be set (but can be the same as PathNative). (Full Path!)
 
-# Host for Kodi Library Update
-# Enable Kodi Library Update (Default: false, allowed: true, clean)
-useKodiLibraryUpdate="false"
+## Kodi Library Update ##
+# Enable Kodi Library Update
+useKodiLibraryUpdate="false" # (Default: false, allowed: true, clean)
+# Kodi Library Update Host (On which Host is Kodi running that can update the Library?)
 kodiHost=""
-kodiCleanWaitTime="15"
+# Wait time between triggering a Clean and an Update of the Kodi Library
+kodiCleanWaitTime="15" # (Default: 15, allowed: 1-X, measured in seconds)
 
-#
-### Remote Sync ###
-#
-enableRemoteSyncInPostProcessing=""
+### Remote Sync Settings ###
 
-## TV Shows ##
-localSyncPathTV="/mnt/synctv" # Don't change me
+## Remote Sync General Settings ##
+# Enable Remote Sync within Post Processing
+enableRemoteSyncInPostProcessing="" # (Default: false, allowed: true, false)
 
-# Fill in Path to enable Remote Sync for TV Shows
+## Remote Sync TV Settings ##
+localSyncPathTV="/mnt/synctv" # Do NOT change me!
+# Remote Path for Sync in the Remote Filesystem
 remoteSyncPathTV=""
+# Set Timeframe for Remote Path Sync TV
+remoteSyncAgeTV="-14" # (Default: -14 Days)
+# Use exclude List for TV Shows
+useExcludeListTV="false" # (Default: false, allowed: true, false)
 
-# Set Timeframe for Remote Path Sync TV (Default: -14 Days)
-remoteSyncAgeTV="-14"
-
-# Use exclude List for TV Shows (Default: false)
-useExcludeListTV="false"
-
-## Movies ##
-localSyncPathMovies="/mnt/syncmovies"
-
-# Fill in Enable Remote Sync for Movies
+## Remote Sync Movie Settings ##
+localSyncPathMovies="/mnt/syncmovies" # Do NOT change me!
+# Remote Path for Movies in the Remote Filesystem
 remoteSyncPathMovies=""
+# Set Timeframe for Remote Path Sync Movies
+remoteSyncAgeMovies="0" # (Default: 0 = Disabled;)
+# Use exclude List for Movies 
+useExcludeListMovies="false" # (Default: false, allowed: true, false)
 
-# Set Timeframe for Remote Path Sync Movies (Default: not set)
-remoteSyncAgeMovies=""
-
-# Use exclude List for Movies (Default: false)
-useExcludeListMovies="false"
-
-# DON'T CHANGE ANY VARIABLES HERE! #
+# DO NOT CHANGE ANY VARIABLES HERE! #
 filesForRemoteSync="/tmp/remotesyncfiles"
 excludeListTV="/etc/default/postprocessingexcludelistTV"
-exludeListMovies="/etc/default/postprocessingexcludelistMovies"
-searchVar1="$2" ## CHANGE LATER
-searchVar2="$3" ## CHANGE LATER
-searchVar3="$4" ## OLD ageSeason
-
-
-
-
+excludeListMovies="/etc/default/postprocessingexcludelistMovies"
