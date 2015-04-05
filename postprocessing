@@ -19,7 +19,7 @@
 
 # Include Configuration File
 CONFIG_FILE="./config"
-if [ -f ${CONFIG_FILE}; then
+if [ -f ${CONFIG_FILE} ]; then
 . ${CONFIG_FILE}
 else
 	echo "Aborted, no configuration file found!"
@@ -27,12 +27,14 @@ else
 fi
 
 postProcessTV () {
-	cd ${1}
-
-	filebot -rename "${1}" ${filebotTVDB} --format "${2}/${filebotTVFolder}/${filebotTVFile}" ${filebotTVLanguage} ${filebotTVRecursive} ${filebotTVNonstrict} ${filebotTVOverride}
-
+	if [ "$(ls -A ${1})" ]; then
+		filebot -rename "${1}" ${filebotTVDB} --format "${2}/${filebotTVFolder}/${3}/${filebotTVFile}" ${filebotTVLanguage} ${filebotTVRecursive} ${filebotTVNonstrict} ${filebotTVOverride}
+	fi
 	if [ ${enableFilebotCleaner} = true ]; then
 		filebot -script fn:cleaner "${1}"
+	fi
+	if [ ${enableRemoteSyncInPostProcessingTV} = true ]; then
+		postprocessing SyncTV
 	fi
 }
 
@@ -92,17 +94,17 @@ checkLocalMountPath () {
 
 mountRemoteSyncPath () {
 	echo "Checking if ${1} is already mounted."
-	if [ `stat -fc%t:%T "${1}"` != `stat -fc%t:%T "${1}/.."` ] && [ -e ${1}/${2}.check ]; then
+	if [ `stat -fc%t:%T "${2}"` != `stat -fc%t:%T "${2}/.."` ] && [ -e ${2}/${3}.check ]; then
 		echo "${1} is already mounted."
 	else
 		echo "${1} is not mounted."
 		echo "Mounting Directory now...."
-		mount ${1}
-		if [ $? -eq 0 ] && [ -e ${1}/${2}.check ]; then
+		mount "${1}" "${2}" 
+		if [ $? -eq 0 ] && [ -e ${2}/${3}.check ]; then
 			echo "${1} mounted successfully."
 		else
 			echo "${1} could not be mounted! Aborting..."
-			echo "Maybe ${2}.check in ${1} is missing?"
+			echo "Maybe ${3}.check in ${2} is missing?"
 			exit 1
 		fi
 	fi
@@ -119,29 +121,27 @@ umountRemoteSyncPath () {
 
 collectFiles () {
 	if [ $1 = TV ]; then 
-		downloadPath = ${downloadPathTV}
-		remoteSyncAge = ${remoteSyncAgeTV}
-		excludeList = ${excludeListTV}
-		useExcludeList = ${useExcludeListTV}
+		cd ${destinationPathTV}
+		if [ $? -eq 1 ]; then
+			echo "Error, could not change directory to ${downloadPath}"
+			exit 1
+		elif [ ${useExcludeListTV} = true ]; then
+			find . -type f -mtime $remoteSyncAgeTV | sed -f ${excludeListTV} > ${filesForRemoteSync}
+		else
+			find . -type f -mtime $remoteSyncAgeTV > ${filesForRemoteSync}
+		fi
 	elif [ $1 = Movies ]; then
-		downloadPath = ${downloadPathMovies}
-		remoteSyncAge = ${remoteSyncAgeMovies}
-		excludeList = ${excludeListMovies}
-		useExcludeList = ${useExcludeListMovies}
+		if [ $? -eq 1 ]; then
+			echo "Error, could not change directory to ${downloadPath}"
+			exit 1
+		elif [ ${useExcludeListMovies} = true ]; then
+			find . -type f $remoteSyncAgeMovies | sed -f ${excludeListMovies} > ${filesForRemoteSync}
+		else
+			find . -type f $remoteSyncAgeMovies > ${filesForRemoteSync}
+		fi
 	else
 		echo "Called with unknown argument. Aborting..."
 		exit 1
-	fi
-
-	cd ${downloadPath}
-
-	if [ $? -eq 1 ]; then
-		echo "Error, could not change directory to ${downloadPath}"
-		exit 1
-	elif [ ${useExcludeList} = true ]; then
-		find . -type f ${remoteSyncAge} | sed -f ${excludeList} > ${filesForRemoteSync}
-	else
-		find . -type f ${remoteSyncAge} > ${filesForRemoteSync}
 	fi
 }
 
@@ -168,15 +168,12 @@ collectFilesSeason () {
 }
 
 syncFiles () {
-
-	destinationPath = ${1}
-	
-	if [ ${2} = dryrun ]; then
+	if [ ! -z ${2} ] && [ ${2} = dryrun ]; then
 		echo "Syncing files now...(dryrun)"
-		rsync -Ranvh --files-from=${filesForRemoteSync} . ${destinationPath}
+		rsync -Ranvh --files-from=${filesForRemoteSync} . ${1}
 	else
 		echo "Syncing files now..."
-		rsync -Ravh --files-from=${filesForRemoteSync} . ${destinationPath}
+		rsync -Ravh --files-from=${filesForRemoteSync} . ${1}
 		if [ $? -eq 1 ]; then
 			echo "Files synced successfully."
 		else
@@ -186,7 +183,7 @@ syncFiles () {
 }
 
 syncFilesSeason () {
-	if [ ${3} = dryrun ] || [ ${4} = dryrun ]; then
+	if [ ! -z ${3} ] && [ ${3} = dryrun ] || [ ! -z ${4} ] &&  [ ${4} = dryrun ]; then
 		echo "Syncing season now... Dryrun!"
 		rsync -Ravhn --files-from=${filesForRemoteSync} . ${destinationPathTV}
 	else
@@ -226,11 +223,11 @@ helpMessage () { # Not yet finished
 
 case $1 in
 	SyncTV)
-		if [ $2 = dryrun ]; then
+		if [ ! -z ${2} ] && [ $2 = dryrun ]; then
 			collectFiles TV dryrun
 		else
 			checkLocalMountPath ${localSyncPathTV}
-			mountRemoteSyncPath ${remoteSyncPathTV} TV
+			mountRemoteSyncPath ${remoteSyncPathTV} ${localSyncPathTV} TV
 			collectFiles TV
 			syncFiles TV
 			updateXBMCLib
@@ -239,11 +236,11 @@ case $1 in
 	;;
 	
 	SyncMovies)
-		if [ $2 = dryrun ]; then
+		if [ ! -z ${2} ] &&  [ $2 = dryrun ]; then
 			collectFiles Movies dryrun
 		else
 			checkLocalMountPath ${localSyncPathMovies}
-			mountRemoteSyncPath ${remoteSyncPathMovies} Movies
+			mountRemoteSyncPath ${remoteSyncPathMovies} ${localSyncPathMovies} Movies
 			collectFiles Movies
 			syncFiles Movies
 			updateXBMCLib
@@ -255,22 +252,28 @@ case $1 in
 		checkLocalMountPath ${localSyncPathTV}
 		mountRemoteSyncPath ${remoteSyncPathTV}
 		collectFilesSeason ${2} ${3} ${4} ${5}
+		updateXBMCLib
+		umountRemoteSyncPath ${localSyncPathTV}
 	;;	
 
 	postProcessTVNative)
-		postProcessTV "${downloadPathTVNative}" "${destinationPathTVNative}"
+		postProcessTV "${downloadPathTVNative}" "${destinationPathTVNative}" "${filebotTVSeasonNative}"
+		updateXBMCLib
 	;;
 
 	postProcessTVSecond)
-		postProcessTV "${downloadPathTVSecond}" "${destinationPathTVSecond}"
+		postProcessTV "${downloadPathTVSecond}" "${destinationPathTVSecond}" "${filebotTVSeasonSecond}"
+		updateXBMCLib
 	;;	
 
 	postProcessMoviesNative)
 		postProcessMovies "${downloadPathMoviesNative}" "${downloadPathMoviesNative}" "${stereoFilterDestinationPathNative}"
+		updateXBMCLib
 	;;
 
 	postProcessMoviesSecond)
 		postProcessMovies "${downloadPathMoviesSecond}" "${downloadPathMoviesSecond}" "${stereoFilterDestinationPathSecond}"
+		updateXBMCLib
 	;;
 
 	-h|--help)

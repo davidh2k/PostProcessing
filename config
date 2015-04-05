@@ -23,6 +23,10 @@
 
 ### Post Processing Settings ###
 
+## General Post Processing Settings ##
+# Filebot Cleaner # 
+enableFilebotCleaner=false # (default: false, allowed: true, false) Cleans up useless junk in your download Folder thats left after postprocessing.
+
 ## TV Show Settings ##
 # Download Path TV Shows (Where are your TV Shows stored after downloading?)
 downloadPathTVNative="/opt/SAB1/Downloads/complete/tv" # Your native Language (Full Path!)
@@ -33,6 +37,9 @@ destinationPathTVSecond="English" # Your second Language, can be seperate Folder
 ## Filebot Syntax Settings ## Those Settings are used to properly rename the files
 # TV Show Folder
 filebotTVFolder="{n.replaceAll(/[!?.]+\$/).replaceAll(/[\`´‘’ʻ]/, \"'\").replace(':',' -')}"
+# TV Show Season
+filebotTVSeasonNative="Staffel {s} DE + EN {vf}"
+filebotTVSeasonSecond="Staffel {s} EN {vf}"
 # TV Show File
 filebotTVFile="{t.replaceAll(/[!?.]+\$/).replaceAll(/[\`´‘’ʻ]/, \"'\").replace(':',' -')}"
 # TV Show Database
@@ -90,12 +97,13 @@ kodiCleanWaitTime="15" # (Default: 15, allowed: 1-X, measured in seconds)
 
 ## Remote Sync General Settings ##
 # Enable Remote Sync within Post Processing
-enableRemoteSyncInPostProcessing="" # (Default: false, allowed: true, false)
+enableRemoteSyncInPostProcessingTV="false" # (Default: false, allowed: true, false)
+enableRemoteSyncInPostProcessingMovies="false" # (Default: false, allowed: true, false)
 
 ## Remote Sync TV Settings ##
 localSyncPathTV="/mnt/synctv" # Do NOT change me!
 # Remote Path for Sync in the Remote Filesystem
-remoteSyncPathTV=""
+remoteSyncPathTV="192.168.178.66:/export/Serien/Serien"
 # Set Timeframe for Remote Path Sync TV
 remoteSyncAgeTV="-14" # (Default: -14 Days)
 # Use exclude List for TV Shows
