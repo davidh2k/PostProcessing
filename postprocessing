@@ -174,7 +174,7 @@ syncFiles () {
 	else
 		echo "Syncing files now..."
 		rsync -Ravh --files-from=${filesForRemoteSync} . ${1}
-		if [ $? -eq 1 ]; then
+		if [ $? -eq 0 ]; then
 			echo "Files synced successfully."
 		else
 			echo "Filetransfer ended with errors!"
@@ -189,7 +189,7 @@ syncFilesSeason () {
 	else
 		echo "Syncing Season now..."
 		rsync -Ravh --files-from=${filesForRemoteSync} . ${destinationPathTV}
-		if [ $? -eq 1 ]; then
+		if [ $? -eq 0 ]; then
 			echo "Files synced successfully."
 		else
 			echo "Filetransfer ended with errors!"
