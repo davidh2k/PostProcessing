@@ -44,34 +44,34 @@ postProcessMovies () {
 	if [ ${useStereoFilter} = true ];  then
 		cat /dev/null > ${stereoFilterMatchedFiles}
 
-		for f in *
-		do
-			ls "${f}" | grep mkv | mediainfo -f "${f}" | grep "2 channels" && echo "${f}" >> "${stereoFilterMatchedFiles}"
-		done
+		if [ "$(ls -A ${1})" ]; then
+			for f in *
+			do
+				ls "${f}" | grep mkv | mediainfo -f "${f}" | grep "2 channels" && echo "${f}" >> "${stereoFilterMatchedFiles}"
+			done
+		fi
 
 		if [ -s ${stereoFilterMatchedFiles} ]; then
 			while read p; do
-				mv ${p} ${stereoFilterTempFolder}
+				mv "${p}" "${stereoFilterTempPath}"
 			done < "${stereoFilterMatchedFiles}"
-		else
-			:
 		fi
 
-		if [ "$(ls -A ${stereoFilterTempFolder})" ]; then
-			filebot -rename "${stereoFilterTempFolder}" ${filebotMoviesDB} --format "{3}/${filebotMoviesFolder}/${filebotMoviesFile}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict} ${filebotMoviesOverride}
+		if [ "$(ls -A ${stereoFilterTempPath})" ]; then
+			filebot -rename "${stereoFilterTempPath}" ${filebotMoviesDB} --format "${3}/${filebotMoviesFolder}/${filebotMoviesFile}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict} ${filebotMoviesOverride}
 
 			if [ ${enableFilebotCleaner} = true ]; then
-				filebot -script fn:cleaner "${stereoFilterTempFolder}"
+				filebot -script fn:cleaner "${stereoFilterTempPath}"
 			fi
-		else
-			echo "No File in "${stereoFilterTempFolder}", nothing to do here."
 		fi
 	fi
 
-	filebot -rename "${1}" ${filebotMoviesDB} --format "${2}/${filebotMoviesFolder}/${filebotMoviesFile}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict} ${filebotMoviesOverride}
-
-	if [ ${enableFilebotCleaner} = true ]; then
-		filebot -script fn:cleaner "${stereoFilterTempFolder}"
+	if [ "$(ls -A ${1})" ]; then
+		filebot -rename "${1}" ${filebotMoviesDB} --format "${2}/${filebotMoviesFolder}/${filebotMoviesFile}" ${filebotMoviesLanguage} ${filebotMoviesRecursive} ${filebotMoviesNonstrict} ${filebotMoviesOverride}
+	
+		if [ ${enableFilebotCleaner} = true ]; then
+			filebot -script fn:cleaner "${1}"
+		fi
 	fi
 
 	if [ ${enableRemoteSyncInPostProcessingMovies} = true ]; then
