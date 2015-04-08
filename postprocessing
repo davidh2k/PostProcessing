@@ -229,7 +229,7 @@ case $1 in
 			checkLocalMountPath ${localSyncPathTV}
 			mountRemoteSyncPath ${remoteSyncPathTV} ${localSyncPathTV} TV
 			collectFiles TV
-			syncFiles TV
+			syncFiles ${localSyncPathTV}
 			updateXBMCLib
 			umountRemoteSyncPath ${localSyncPathTV}
 		fi
@@ -242,7 +242,7 @@ case $1 in
 			checkLocalMountPath ${localSyncPathMovies}
 			mountRemoteSyncPath ${remoteSyncPathMovies} ${localSyncPathMovies} Movies
 			collectFiles Movies
-			syncFiles Movies
+			syncFiles ${localSyncPathMovies}
 			updateXBMCLib
 			umountRemoteSyncPath ${localSyncPathMovies}
 		fi
@@ -267,12 +267,12 @@ case $1 in
 	;;	
 
 	postProcessMoviesNative)
-		postProcessMovies "${downloadPathMoviesNative}" "${downloadPathMoviesNative}" "${stereoFilterDestinationPathNative}"
+		postProcessMovies "${downloadPathMoviesNative}" "${destinationPathMoviesNative}" "${stereoFilterDestinationPathNative}"
 		updateXBMCLib
 	;;
 
 	postProcessMoviesSecond)
-		postProcessMovies "${downloadPathMoviesSecond}" "${downloadPathMoviesSecond}" "${stereoFilterDestinationPathSecond}"
+		postProcessMovies "${downloadPathMoviesSecond}" "${destinationPathMoviesSecond}" "${stereoFilterDestinationPathSecond}"
 		updateXBMCLib
 	;;
 
