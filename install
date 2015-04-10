@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# @license http://www.gnu.org/licenses/gpl.html GPL Version 3
+# @author David Hönel <davidh1990@gmx.de>
+# @copyright Copyright (c) 2015 David Hönel
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+# Install PostProcessing 
+
+# wget filebot and mediainfo files
+
+downloadDeb() {
+	wget "http://www.filebot.net/download.php?mode=s&type=deb&arch=${1}" -O filebot_${1}.deb
+
+	wget `curl https://mediaarea.net/de/MediaInfo/Download/Debian | grep mediainfo_ | grep ${1}.Debian_7.0.deb | cut -d '"' -f2`
+
+	wget `curl https://mediaarea.net/de/MediaInfo/Download/Debian | grep libmediainfo0_ | grep ${1}.Debian_7.0.deb | cut -d '"' -f2`
+
+	wget `curl https://mediaarea.net/de/MediaInfo/Download/Debian | grep libzen0_ | grep ${1}.Debian_7.0.deb | cut -d '"' -f2`
+}
+
+installDeb() {
+	dpkg -i filebot_*.deb mediainfo_*Debian_7.deb libmediainfo0_*Debian_7.deb libzen0_*Debian_7.deb
+}
+
+cd /tmp
+
+arch=(uname -a)
+
+if [ grep -q 'x86_64' ${arch} ]; then
+	downloadDeb i386
+elif [ grep -q '386' ${arch} ] || [ grep -q '486' ${arch} ] || [ grep -q '686' ${arch} ]; then
+	downloadDeb amd64
+else
+	echo "Sorry, I was too lazy to setup the install script for your platform, yet. For now its x86_64 and x86_32 only."
+fi
+
+git clone https://github.com/davidh2k/PostProcessing /var/opt/PostProcessing
+cd /var/opt/PostProcessing
+cp postprocessing /usr/bin
+
+echo "Caller Scripts are located in /var/opt/PostProcessing/callerscripts. Copy them to your needed destination."
