@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# Install PostProcessing 
+# Install PostProcessing
 
 # wget filebot and mediainfo files
 
@@ -32,20 +32,28 @@ downloadDeb() {
 }
 
 installDeb() {
-	dpkg -i filebot_*.deb mediainfo_*Debian_7.deb libmediainfo0_*Debian_7.deb libzen0_*Debian_7.deb
+	dpkg -i filebot_*.deb mediainfo_*Debian_7.0.deb libmediainfo0_*Debian_7.0.deb libzen0_*Debian_7.0.deb
 }
 
 cd /tmp
 
-arch=(uname -a)
+archamd64=$(uname -a | grep x86_64)
+arch386=$(uname -a | grep 386)
+arch486=$(uname -a | grep 486)
+arch686=$(uname -a | grep 686)
 
-if [ grep -q 'x86_64' ${arch} ]; then
-	downloadDeb i386
-elif [ grep -q '386' ${arch} ] || [ grep -q '486' ${arch} ] || [ grep -q '686' ${arch} ]; then
-	downloadDeb amd64
+
+
+if [ -z "${archamd64}" ]; then
+        downloadDeb amd64
+        installDeb
+elif [ -z "${arch386}" ] || [ -z "${arch486}" ] || [ -z "${arch686}" ] ; then
+        downloadDeb i386
+        installDeb
 else
-	echo "Sorry, I was too lazy to setup the install script for your platform, yet. For now its x86_64 and x86_32 only."
+        echo "Sorry, I was too lazy to setup the install script for your platform, yet. For now its x86_64 and x86_32 only."
 fi
+
 
 git clone https://github.com/davidh2k/PostProcessing /var/opt/PostProcessing
 cd /var/opt/PostProcessing
