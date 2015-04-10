@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 # Include Configuration File
-CONFIG_FILE="./config"
+CONFIG_FILE="/var/opt/PostProcessing/config"
 if [ -f ${CONFIG_FILE} ]; then
 . ${CONFIG_FILE}
 else

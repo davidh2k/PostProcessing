@@ -42,20 +42,23 @@ arch386=$(uname -a | grep 386)
 arch486=$(uname -a | grep 486)
 arch686=$(uname -a | grep 686)
 
-
-
-if [ -z "${archamd64}" ]; then
+if [ ! -z "${archamd64}" ]; then
         downloadDeb amd64
         installDeb
-elif [ -z "${arch386}" ] || [ -z "${arch486}" ] || [ -z "${arch686}" ] ; then
+elif [ ! -z "${arch386}" ] || [ ! -z "${arch486}" ] || [ ! -z "${arch686}" ] ; then
         downloadDeb i386
         installDeb
 else
         echo "Sorry, I was too lazy to setup the install script for your platform, yet. For now its x86_64 and x86_32 only."
 fi
 
+if [ ! -d /var/opt/PostProcessing ]; then
+	git clone https://github.com/davidh2k/PostProcessing /var/opt/PostProcessing
+else
+	cd /var/opt/PostProcessing
+	git pull
+fi
 
-git clone https://github.com/davidh2k/PostProcessing /var/opt/PostProcessing
 cd /var/opt/PostProcessing
 cp postprocessing /usr/bin
 
