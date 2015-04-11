@@ -32,6 +32,7 @@ enableFilebotCleaner=false # (default: false, allowed: true, false) Cleans up us
 downloadPathTVNative="/opt/SAB1/Downloads/complete/tv" # Your native Language (Full Path!)
 downloadPathTVSecond="/opt/SAB2/Downloads/complete/tv" # Second language, if used MUST be separate Folder from your native Language (Full Path!)
 # TV Shows Folder
+destinationPathTV="/media/d3c21c66-af4b-41d4-b098-462e83fa641d/Serien/" # Path above your Language Folders. Needed for syncing files only. Can be the same like destinationPathTVNative if you only have a single Language.
 destinationPathTVNative="Deutsch" # Your native Language (Only fill in the Language, leave empty if you don't want to use it)
 destinationPathTVSecond="English" # Your second Language, can be seperate Folder from your native Language if you wish, leave empty if you don't need it)
 ## Filebot Syntax Settings ## Those Settings are used to properly rename the files
@@ -58,6 +59,7 @@ filebotTVOverride="--override auto"
 downloadPathMoviesNative="" # Your native Language (Full Path!)
 downloadPathMoviesSecond="" # Second language, if used MUST be separate Folder from your native Language (Full Path!)
 # Movies Folder
+destinationPathMovies="" # Path about your Language Folders. Needed for syncing files only. Needed for syncing files only. Can be the same like destinationPathMoviesNative if you only have a single Language.
 destinationPathMoviesNative="" # Your native Language (Only fill in the Language, leave empty if you don't want to use it) (Full Path!)
 destinationPathMoviesSecond="" # Your second Language, can be seperate Folder from your native Language if you wish, leave empty if you don't need it) (Full Path!)
 ## Filebot Syntax Settings ## Those Settings are used to properly rename the files
@@ -84,6 +86,9 @@ stereoFilterTempPath="/opt/tmp/" # Do NOT change.
 # Where do you want to move the Movies with Stereo Audio Tracks to?
 stereoFilterDestinationPathNative="" # Your Native Language, MUST be set if useStereoFilter is set to true. (Full Path!)
 stereoFilterDestinationPathSecond="" # Your Second Language, MUST be set (but can be the same as PathNative). (Full Path!)
+
+## Fixing Permissions in Destination Dir ##
+enableFixPermissionsInDestinationPath=false # (default: false, allowed: true, false) # Only works when script is run as root
 
 ## Kodi Library Update ##
 # Enable Kodi Library Update

@@ -30,11 +30,17 @@ postProcessTV () {
 	if [ "$(ls -A ${1})" ]; then
 		filebot -rename "${1}" ${filebotTVDB} --format "${2}/${filebotTVFolder}/${3}/${filebotTVFile}" ${filebotTVLanguage} ${filebotTVRecursive} ${filebotTVNonstrict} ${filebotTVOverride}
 	fi
+
 	if [ ${enableFilebotCleaner} = true ]; then
 		filebot -script fn:cleaner "${1}"
 	fi
+
 	if [ ${enableRemoteSyncInPostProcessingTV} = true ]; then
 		postprocessing SyncTV
+	fi
+
+	if [ enableFixPermissionsInDestinationPath = true ]; then
+		fixPerms "${destinationPathTV}"
 	fi
 }
 
@@ -63,6 +69,10 @@ postProcessMovies () {
 			if [ ${enableFilebotCleaner} = true ]; then
 				filebot -script fn:cleaner "${stereoFilterTempPath}"
 			fi
+
+			if [ enableFixPermissionsInDestinationPath = true ]; then
+				fixPerms "${3}"
+			fi
 		fi
 	fi
 
@@ -72,6 +82,10 @@ postProcessMovies () {
 		if [ ${enableFilebotCleaner} = true ]; then
 			filebot -script fn:cleaner "${1}"
 		fi
+	fi
+
+	if [ enableFixPermissionsInDestinationPath = true ]; then
+		fixPerms "${destinationPathMovies}"
 	fi
 
 	if [ ${enableRemoteSyncInPostProcessingMovies} = true ]; then
@@ -123,7 +137,7 @@ collectFiles () {
 	if [ $1 = TV ]; then 
 		cd ${destinationPathTV}
 		if [ $? -eq 1 ]; then
-			echo "Error, could not change directory to ${downloadPath}"
+			echo "Error, could not change directory to ${destinationPathTV}"
 			exit 1
 		elif [ ${useExcludeListTV} = true ]; then
 			find . -type f -mtime $remoteSyncAgeTV | sed -f ${excludeListTV} > ${filesForRemoteSync}
@@ -131,8 +145,9 @@ collectFiles () {
 			find . -type f -mtime $remoteSyncAgeTV > ${filesForRemoteSync}
 		fi
 	elif [ $1 = Movies ]; then
+		cd ${destinationPathMovies}
 		if [ $? -eq 1 ]; then
-			echo "Error, could not change directory to ${downloadPath}"
+			echo "Error, could not change directory to ${destinationPathMovies}"
 			exit 1
 		elif [ ${useExcludeListMovies} = true ]; then
 			find . -type f $remoteSyncAgeMovies | sed -f ${excludeListMovies} > ${filesForRemoteSync}
@@ -211,6 +226,13 @@ updateXBMCLib () {
 	else
 		:
 	fi
+}
+
+fixPerms () {
+	setfacl -Rb "${1}"
+	chown root:users "${1}" -R
+	find "${1}" -type d -exec chmod 775 {} +
+	find "${1}" -type f -exec chmod 664 {} +
 }
 
 usage () {
