@@ -53,11 +53,17 @@ else
 fi
 
 if [ ! -d /var/opt/PostProcessing ]; then
-	git clone https://github.com/davidh2k/PostProcessing /var/opt/PostProcessing
+        git clone https://github.com/davidh2k/PostProcessing /var/opt/PostProcessing
 else
-	cd /var/opt/PostProcessing
-	git pull
+        cd /var/opt/PostProcessing
+        if [ ! -f config.old ]; then
+                mv config config.old
+                git pull
+        else
+                echo "config.old already exists! Backup it to another location, or deleteit if you don't need it anymore."
+        fi
 fi
+
 
 cd /var/opt/PostProcessing
 cp postprocessing /usr/bin

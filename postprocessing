@@ -39,7 +39,7 @@ postProcessTV () {
 		postprocessing SyncTV
 	fi
 
-	if [ enableFixPermissionsInDestinationPath = true ]; then
+	if [ ${enableFixPermissionsInDestinationPath} = true ]; then
 		fixPerms "${destinationPathTV}"
 	fi
 }
@@ -70,7 +70,7 @@ postProcessMovies () {
 				filebot -script fn:cleaner "${stereoFilterTempPath}"
 			fi
 
-			if [ enableFixPermissionsInDestinationPath = true ]; then
+			if [ ${enableFixPermissionsInDestinationPath} = true ]; then
 				fixPerms "${3}"
 			fi
 		fi
@@ -84,7 +84,7 @@ postProcessMovies () {
 		fi
 	fi
 
-	if [ enableFixPermissionsInDestinationPath = true ]; then
+	if [ ${enableFixPermissionsInDestinationPath} = true ]; then
 		fixPerms "${destinationPathMovies}"
 	fi
 
@@ -150,9 +150,9 @@ collectFiles () {
 			echo "Error, could not change directory to ${destinationPathMovies}"
 			exit 1
 		elif [ ${useExcludeListMovies} = true ]; then
-			find . -type f $remoteSyncAgeMovies | sed -f ${excludeListMovies} > ${filesForRemoteSync}
+			find . -type f mtime $remoteSyncAgeMovies | sed -f ${excludeListMovies} > ${filesForRemoteSync}
 		else
-			find . -type f $remoteSyncAgeMovies > ${filesForRemoteSync}
+			find . -type f mtime $remoteSyncAgeMovies > ${filesForRemoteSync}
 		fi
 	else
 		echo "Called with unknown argument. Aborting..."
@@ -161,7 +161,9 @@ collectFiles () {
 }
 
 collectFilesSeason () {
-	if -n [ -n ${1} || -n ${2} ]; then
+	if [ -n ${1} ] && [ -n ${2} ]; then
+		:
+	else
 		echo "Missing argument!"
 		exit 1
 	fi
@@ -173,37 +175,22 @@ collectFilesSeason () {
 		exit 1
 	fi
 
-	if [ -n ${3} ]; then
+	if [ -n ${3} ] && [ ${3} != dryrun ]; then
 		echo "Writing Season with correct path to ${filesForRemoteSync}"
-		find . -type f -name "${1}*${2}*" -mtime "${3}" | tee ${filesForRemoteSync}
+		find . -type f -name "${1}*${2}*" 
 	else
 		echo "Writing Season with correct path to ${filesForRemoteSync}"
-		find . -type f -name "${1}*${2}*" | tee ${filesForRemoteSync}
+		find . -type f -name "${1}*${2}*" -mtime "${3}" 
 	fi
 }
 
 syncFiles () {
-	if [ ! -z ${2} ] && [ ${2} = dryrun ]; then
+	if [ ! -z ${2} ] && [ ${2} = dryrun ] || [ ! -z ${3} ] && [ ${3} = dryrun ]; then
 		echo "Syncing files now...(dryrun)"
 		rsync -Ranvh --files-from=${filesForRemoteSync} . ${1}
 	else
 		echo "Syncing files now..."
 		rsync -Ravh --files-from=${filesForRemoteSync} . ${1}
-		if [ $? -eq 0 ]; then
-			echo "Files synced successfully."
-		else
-			echo "Filetransfer ended with errors!"
-		fi
-	fi
-}
-
-syncFilesSeason () {
-	if [ ! -z ${3} ] && [ ${3} = dryrun ] || [ ! -z ${4} ] &&  [ ${4} = dryrun ]; then
-		echo "Syncing season now... Dryrun!"
-		rsync -Ravhn --files-from=${filesForRemoteSync} . ${destinationPathTV}
-	else
-		echo "Syncing Season now..."
-		rsync -Ravh --files-from=${filesForRemoteSync} . ${destinationPathTV}
 		if [ $? -eq 0 ]; then
 			echo "Files synced successfully."
 		else
@@ -245,35 +232,28 @@ helpMessage () { # Not yet finished
 
 case $1 in
 	SyncTV)
-		if [ ! -z ${2} ] && [ $2 = dryrun ]; then
-			collectFiles TV dryrun
-		else
-			checkLocalMountPath ${localSyncPathTV}
-			mountRemoteSyncPath ${remoteSyncPathTV} ${localSyncPathTV} TV
-			collectFiles TV
-			syncFiles ${localSyncPathTV}
-			updateXBMCLib
-			umountRemoteSyncPath ${localSyncPathTV}
-		fi
+		checkLocalMountPath ${localSyncPathTV}
+		mountRemoteSyncPath ${remoteSyncPathTV} ${localSyncPathTV} TV
+		collectFiles TV
+		syncFiles ${localSyncPathTV} ${2}
+		updateXBMCLib
+		umountRemoteSyncPath ${localSyncPathTV}
 	;;
 	
 	SyncMovies)
-		if [ ! -z ${2} ] &&  [ $2 = dryrun ]; then
-			collectFiles Movies dryrun
-		else
-			checkLocalMountPath ${localSyncPathMovies}
-			mountRemoteSyncPath ${remoteSyncPathMovies} ${localSyncPathMovies} Movies
-			collectFiles Movies
-			syncFiles ${localSyncPathMovies}
-			updateXBMCLib
-			umountRemoteSyncPath ${localSyncPathMovies}
-		fi
+		checkLocalMountPath ${localSyncPathMovies}
+		mountRemoteSyncPath ${remoteSyncPathMovies} ${localSyncPathMovies} Movies
+		collectFiles Movies
+		syncFiles ${localSyncPathMovies} ${2}
+		updateXBMCLib
+		umountRemoteSyncPath ${localSyncPathMovies}
 	;;
 
 	SyncSeason)
 		checkLocalMountPath ${localSyncPathTV}
-		mountRemoteSyncPath ${remoteSyncPathTV}
+		mountRemoteSyncPath ${remoteSyncPathTV} ${localSyncPathTV} TV
 		collectFilesSeason ${2} ${3} ${4} ${5}
+		syncFiles ${localSyncPathTV} ${4} ${5}
 		updateXBMCLib
 		umountRemoteSyncPath ${localSyncPathTV}
 	;;	
