@@ -175,17 +175,17 @@ collectFilesSeason () {
 		exit 1
 	fi
 
-	if [ -n ${3} ] && [ ${3} != dryrun ]; then
+	if [ -n "${3}" -a "${3}" != dryrun ]; then
 		echo "Writing Season with correct path to ${filesForRemoteSync}"
-		find . -type f -name "${1}*${2}*" 
+		find . -type f -name "${1}*${2}*" -mtime "${3}" > ${filesForRemoteSync}
 	else
 		echo "Writing Season with correct path to ${filesForRemoteSync}"
-		find . -type f -name "${1}*${2}*" -mtime "${3}" 
+		find . -type f -name "${1}*${2}*" > ${filesForRemoteSync}
 	fi
 }
 
 syncFiles () {
-	if [ ! -z ${2} ] && [ ${2} = dryrun ] || [ ! -z ${3} ] && [ ${3} = dryrun ]; then
+	if [ ! -z "${2}" -a "${2}" = dryrun -o ! -z "${3}" -a "${3}" = dryrun ]; then
 		echo "Syncing files now...(dryrun)"
 		rsync -Ranvh --files-from=${filesForRemoteSync} . ${1}
 	else
