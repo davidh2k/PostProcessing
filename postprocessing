@@ -150,9 +150,9 @@ collectFiles () {
 			echo "Error, could not change directory to ${destinationPathMovies}"
 			exit 1
 		elif [ ${useExcludeListMovies} = true ]; then
-			find . -type f mtime $remoteSyncAgeMovies | sed -f ${excludeListMovies} > ${filesForRemoteSync}
+			find . -type f -mtime $remoteSyncAgeMovies | sed -f ${excludeListMovies} > ${filesForRemoteSync}
 		else
-			find . -type f mtime $remoteSyncAgeMovies > ${filesForRemoteSync}
+			find . -type f -mtime $remoteSyncAgeMovies > ${filesForRemoteSync}
 		fi
 	else
 		echo "Called with unknown argument. Aborting..."
